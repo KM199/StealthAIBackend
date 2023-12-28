@@ -8,10 +8,22 @@ const userSchema    = new Schema({
     username: {
         type: String
     },
+    firstName: {
+        type: String
+    },
+    lastName: {
+        type: String
+    },
     email: {
         type: String
     },
     emailVerified: {
+        type: Boolean
+    },
+    phone: {
+        type: String
+    },
+    phoneVerified: {
         type: Boolean
     },
     password: {
