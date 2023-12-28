@@ -20,14 +20,20 @@ const userSchema    = new Schema({
     emailVerified: {
         type: Boolean
     },
-    phone: {
-        type: String
+    phoneAreaCode: {
+        type: Number
+    },
+    phone9Digit: {
+        type: Number
     },
     phoneVerified: {
         type: Boolean
     },
     password: {
         type: String
+    },
+    loginLogs:{
+        type: Array
     },
     privateData: {
         type: Array

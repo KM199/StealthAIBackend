@@ -1,4 +1,5 @@
 const User      = require('../models/UserV1')
+const LoginLog  = require('../models/LoginLogV1')
 const bcrypt    = require('bcryptjs')
 const jwt       = require('jsonwebtoken')
 
@@ -19,8 +20,13 @@ const register = (req,res,next) => {
         let newUser = new User ({
             version: 1,
             username: username,
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
             email: email,
             emailVerified: false,
+            phoneAreaCode: req.body.phoneAreaCode,
+            phone9Digit: req.body.phone9Digit,
+            phoneVerified: false,
             password: hashedPass
         })
         //Check if username is already in use
@@ -76,7 +82,28 @@ const login = (req, res, next) => {
                     })
                 }
                 if(result) {
+                    //Create JWT Token
                     let token = jwt.sign({username: user.username}, secret, {expiresIn: tokenTime})
+                    //Create LoginLog
+                    let newLoginLog = new LoginLog ({
+                        version: 1,
+                        user: user._id,
+                        ipAdress: req.ip,
+                    })
+                    newLoginLog.save().then(user => {
+                        console.log("Saved Login Log!")
+                    })
+                    .catch(error => {
+                        console.log("Error Logging Login")
+                    })
+                    //Add Login document to loginLogs Array
+                    user.loginLogs.push(newLoginLog._id)
+                    user.save().then(user => {
+                        console.log("Saved!")
+                    })
+                    .catch(error => {
+                        console.log("Error Logging Login")
+                    })
                     res.json({
                         message: 'Login Sucessful!',
                         token
