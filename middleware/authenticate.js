@@ -1,20 +1,20 @@
 const jwt       = require('jsonwebtoken')
 
 const env = require('../.env')
-const secret = env.secretKey
-
+const accessSecret = env.accessSecret
+const refreshSecret = env.refreshSecret
 
 const authenticate = (req, res, next) => {
   try {
     const token = req.headers.authorization
-    const decode = jwt.verify(token, secret)
+    const decode = jwt.verify(token, accessSecret)
 
     req.data = decode
     next()
     }
   catch(error) {
     res.json({
-      message: 'Authentication Failed'
+      message: error.message
     })
   }
 }

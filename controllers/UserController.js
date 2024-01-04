@@ -4,7 +4,8 @@ const bcrypt    = require('bcryptjs')
 const jwt       = require('jsonwebtoken')
 
 const env = require('../.env')
-const secret = env.secretKey
+const accessSecret = env.accessSecret
+const refreshSecret = env.refreshSecret
 
 //Register a new user
 const register = (req,res,next) => {
@@ -66,8 +67,7 @@ const register = (req,res,next) => {
 
 //User Login
 const login = (req, res, next) => {
-    //How long should the jwt last?
-    const tokenTime = '24h'
+    //How long should the refresh token last?
 
     var username = req.body.username
     var password = req.body.password
@@ -82,8 +82,17 @@ const login = (req, res, next) => {
                     })
                 }
                 if(result) {
-                    //Create JWT Token
-                    let token = jwt.sign({username: user.username}, secret, {expiresIn: tokenTime})
+                    //Create JWT Tokens
+                    //How long should our tokens last?
+                    //Also remember to change maxAge in res.cookie
+                    const accessTokenTime = '5m'
+                    const refreshTokenTime = '1d'
+
+                    let accessToken = jwt.sign({username: user.username}, accessSecret, {expiresIn: accessTokenTime})
+                    let refreshToken = jwt.sign({username: user.username}, refreshSecret, {expiresIn: refreshTokenTime})
+
+                    
+
                     //Create LoginLog
                     let newLoginLog = new LoginLog ({
                         version: 1,
@@ -96,18 +105,20 @@ const login = (req, res, next) => {
                     .catch(error => {
                         console.log("Error Logging Login")
                     })
-                    //Add Login document to loginLogs Array
+
+                    //Add Login document to loginLogs Array and save current refreshToken
                     user.loginLogs.push(newLoginLog._id)
+                    user.refreshToken = refreshToken
                     user.save().then(user => {
                         console.log("Saved!")
                     })
                     .catch(error => {
                         console.log("Error Logging Login")
                     })
-                    res.json({
-                        message: 'Login Sucessful!',
-                        token
-                    })
+
+                    //Send Tokens
+                    res.cookie('jwt', refreshToken, {httpOnly: true, maxAge: 24 * 60 * 60 * 1000});
+                    res.json({accessToken})
                 } else {
                     res.json({
                         message: 'Password does not match'

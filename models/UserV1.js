@@ -32,6 +32,9 @@ const userSchema    = new Schema({
     password: {
         type: String
     },
+    refreshToken: {
+        type: String
+    },
     loginLogs:{
         type: Array
     },
