@@ -4,7 +4,9 @@ const bcrypt    = require('bcryptjs')
 const jwt       = require('jsonwebtoken')
 
 const env = require('../.env')
+const accessTTL = env.accessTTL
 const accessSecret = env.accessSecret
+const refreshTTL = env.refreshTTL
 const refreshSecret = env.refreshSecret
 
 //Register a new user
@@ -83,13 +85,8 @@ const login = (req, res, next) => {
                 }
                 if(result) {
                     //Create JWT Tokens
-                    //How long should our tokens last?
-                    //Also remember to change maxAge in res.cookie
-                    const accessTokenTime = '5m'
-                    const refreshTokenTime = '1d'
-
-                    let accessToken = jwt.sign({username: user.username}, accessSecret, {expiresIn: accessTokenTime})
-                    let refreshToken = jwt.sign({username: user.username}, refreshSecret, {expiresIn: refreshTokenTime})
+                    let accessToken = jwt.sign({username: user.username}, accessSecret, {expiresIn: accessTTL})
+                    let refreshToken = jwt.sign({username: user.username}, refreshSecret, {expiresIn: refreshTTL})
 
                     
 
