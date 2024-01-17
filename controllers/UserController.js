@@ -30,7 +30,8 @@ const register = (req,res,next) => {
             phoneAreaCode: req.body.phoneAreaCode,
             phone9Digit: req.body.phone9Digit,
             phoneVerified: false,
-            password: hashedPass
+            password: hashedPass,
+            refreshToken: [],
         })
         //Check if username is already in use
         User.findOne({username:username})
@@ -105,7 +106,7 @@ const login = (req, res, next) => {
 
                     //Add Login document to loginLogs Array and save current refreshToken
                     user.loginLogs.push(newLoginLog._id)
-                    user.refreshToken = refreshToken
+                    user.refreshToken.push(refreshToken)
                     user.save().then(user => {
                         console.log("Saved!")
                     })
@@ -114,7 +115,7 @@ const login = (req, res, next) => {
                     })
 
                     //Send Tokens
-                    res.cookie('jwt', refreshToken, {httpOnly: true, maxAge: 24 * 60 * 60 * 1000});
+                    res.cookie('jwt', refreshToken, {httpOnly: true, sameSite: 'none', secure: true, maxAge: 24 * 60 * 60 * 1000});
                     res.json({accessToken})
                 } else {
                     res.json({

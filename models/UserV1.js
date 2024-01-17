@@ -33,7 +33,7 @@ const userSchema    = new Schema({
         type: String
     },
     refreshToken: {
-        type: String
+        type: Array
     },
     loginLogs:{
         type: Array
